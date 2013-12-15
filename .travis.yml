@@ -3,6 +3,6 @@ language:
 compiler:
    - g++
 before_install:
-   - sudo apt-get install gsl
+   - sudo apt-get install gsl libgsl0-dev
 script:
    - make all
