@@ -3,11 +3,11 @@ using namespace std;
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <cmath>
 
-#include <math.h>
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_math.h>
-#include <gsl/gsl_randhist.h>
+#include <gsl/gsl_randist.h>
 #include <gsl/gsl_sf_exp.h>
 #include <gsl/gsl_sf_log.h>
 
@@ -31,7 +31,7 @@ class SPECIES
       double dN;
       double nmut;
       double birth;
-}
+};
 
 // Gaussian with constant area under curve
 // x:  Position 1
@@ -42,4 +42,13 @@ double Gaussian(double x, double y, double xi)
    const double mismatch = ((x - y) * (x - y)) / xi;
    const double correct  = 1.0 / (xi * sqrt(M_PI * 2.0));
    return correct * gsl_sf_exp(-0.5*(mismatch * mismatch));
+}
+
+int main(int argc, char *argv[])
+{
+   // TODO get options
+   // TODO population dynamics loop
+   // TODO mutations
+   // TODO extinctions
+   // TODO record
 }
