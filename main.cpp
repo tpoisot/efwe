@@ -54,6 +54,7 @@ class PARAMS
       unsigned SUB_STEPS;
       unsigned REC_EACH;
       double RARITY;
+      double MUTSPR;
 };
 
 // Functions for extinctions
@@ -62,12 +63,21 @@ bool toDelete(const SPECIES & S)
    return S.extinct;
 }
 
-void extinct(vector<SPECIES>* S, PARAMS* P)
+void extinct(vector<SPECIES>* S)
 {
    (*S).erase(
          remove_if((*S).begin(), (*S).end(), toDelete),
          (*S).end());
 }
+
+void speciate(vector<SPECIES>* S, PARAMS* P, gsl_rng* rng, int stp)
+{
+   int idx = gsl_rng_uniform_int(rng, (*S).size());
+   double ntrait = gsl_ran_gaussian(rng, P->MUTSPR) + (*S)[idx].x;
+   const SPECIES mutant = {P->RARITY, ntrait, 0.0, 0, stp, false};
+   (*S).push_back(mutant);
+}
+
 // Gaussian with constant area under curve
 // x:  Position 1
 // y:  Position 2
@@ -86,12 +96,12 @@ int main(int argc, char *argv[])
    gsl_rng *rng = gsl_rng_alloc(gsl_rng_taus2);
    gsl_rng_set(rng, begin_time);
    // Default options
-   PARAMS P = {0.5, 0.1, 0.1, 1.01, 1.1, 0.15, 0.90, 0.07, 100, 100, 10, 50, 10, 0.01};
+   PARAMS P = {0.5, 0.3, 0.5, 1.21, 1.1, 0.15, 0.90, 0.05, 90, 90, 100000, 50, 10, 0.001, 0.0001};
    // TODO get options
    // TODO write options as JSON
    // Initialize list of species
    vector<SPECIES> PREYS;
-   PREYS.push_back({10.0, 0.0, 0.0, 0, 0, false});
+   PREYS.push_back({5.0, 0.0, 0.0, 0, 0, false});
    vector<SPECIES> PREDS;
    PREDS.push_back({3.0, 0.0, 0.0, 0, 0, false});
    // TODO population dynamics loop
@@ -145,10 +155,24 @@ int main(int argc, char *argv[])
             }
          }
       }
-      // TODO mutations
-      // TODO extinctions
-      extinct(&PREYS, &P);
-      extinct(&PREDS, &P);
+      double nPreys = 0;
+      for(prey_it = 0 ; prey_it < PREYS.size() ; ++prey_it)
+      {
+         nPreys += PREYS[prey_it].N;
+      }
+      // Speciations
+      if(PREYS.size() < P.MAX_PREY)
+      {
+         speciate(&PREYS, &P, rng, mainStep);
+      }
+      if(PREDS.size() < P.MAX_PRED)
+      {
+         speciate(&PREDS, &P, rng, mainStep);
+      }
+      // Extinctions
+      extinct(&PREYS);
+      extinct(&PREDS);
+      // Print
       // Set derivatives to 0
       for(prey_it = 0 ; prey_it < PREYS.size() ; ++prey_it)
       {
