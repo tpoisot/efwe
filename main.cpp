@@ -3,6 +3,7 @@ using namespace std;
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <sstream>
 #include <fstream>
 #include <cmath>
 
@@ -91,14 +92,27 @@ double Gaussian(double x, double y, double xi)
 
 int main(int argc, char *argv[])
 {
-   // Initialize GSL random number generators
    time_t begin_time = time(0);
    gsl_rng *rng = gsl_rng_alloc(gsl_rng_taus2);
    gsl_rng_set(rng, begin_time);
    // Default options
    PARAMS P = {0.5, 0.3, 0.5, 1.21, 1.1, 0.15, 0.90, 0.05, 90, 90, 100000, 50, 10, 0.001, 0.0001};
    // TODO get options
-   // TODO write options as JSON
+   // write options as JSON
+   string jsfile = "ef1.json";
+   ofstream json;
+   json.open(jsfile);
+   json << "{\"params\": {"
+      << "\"id\":  1,"
+      << "\"breadth_comp\":  " << P.breadth_comp  << ","
+      << "\"breadth_grow\":  " << P.breadth_grow  << ","
+      << "\"breadth_pred\":  " << P.breadth_pred  << ","
+      << "\"r0\":  " << P.r0  << ","
+      << "\"a0\":  " << P.a0  << ","
+      << "\"q0\":  " << P.q0  << ","
+      << "\"d0\":  " << P.d0  << ","
+      << "\"mut\":  " << P.MUTSPR
+      << "}";
    // Initialize list of species
    vector<SPECIES> PREYS;
    PREYS.push_back({5.0, 0.0, 0.0, 0, 0, false});
@@ -183,5 +197,40 @@ int main(int argc, char *argv[])
          PREDS[pred_it].dN = 0.0;
       }
       // TODO record
+      if(mainStep % P.REC_EACH == 0)
+      {
+         json << "{\"t\": " << mainStep + 1 << ",";
+         json << "\"preys\": [";
+         for(prey_it = 0 ; prey_it < PREYS.size() ; ++prey_it)
+         {
+            json << "{"
+               << "\"x\": " << PREYS[prey_it].x << ","
+               << "\"n\": " << PREYS[prey_it].N << ","
+               << "\"b\": " << PREYS[prey_it].birth
+               << "}";
+            if(prey_it < (PREYS.size()-1))
+            {
+               json << ",";
+            }
+         }
+         json << "]";
+         json << "\"preds\": [";
+         for(pred_it = 0 ; pred_it < PREDS.size() ; ++pred_it)
+         {
+            json << "{"
+               << "\"x\": " << PREDS[pred_it].x << ","
+               << "\"n\": " << PREDS[pred_it].N << ","
+               << "\"b\": " << PREDS[pred_it].birth
+               << "}";
+            if(pred_it < (PREDS.size()-1))
+            {
+               json << ",";
+            }
+         }
+         json << "]";
+         json << "}";
+      }
    }
+   json << "}";
+   json.close();
 }
