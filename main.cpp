@@ -33,6 +33,25 @@ class SPECIES
       int birth;
 };
 
+// Class PARAMS
+class PARAMS
+{
+   public:
+      double breadth_comp;
+      double breadth_pred;
+      double breadth_grow;
+      double r0;
+      double q0;
+      double a0;
+      double h0;
+      double d0;
+      int MAX_PRED;
+      int MAX_PREY;
+      int SIM_STEPS;
+      int SUB_STEPS;
+      int REC_EACH;
+};
+
 // Gaussian with constant area under curve
 // x:  Position 1
 // y:  Position 2
