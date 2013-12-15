@@ -29,8 +29,8 @@ class SPECIES
       double N;
       double x;
       double dN;
-      double nmut;
-      double birth;
+      int nmut;
+      int birth;
 };
 
 // Gaussian with constant area under curve
@@ -46,7 +46,17 @@ double Gaussian(double x, double y, double xi)
 
 int main(int argc, char *argv[])
 {
+   // Initialize GSL random number generators
+   time_t begin_time = time(0);
+   gsl_rng *rng = gsl_rng_alloc(gsl_rng_taus2);
+   gsl_rng_set(rng, begin_time);
    // TODO get options
+   // TODO write options as JSON
+   // Initialize list of species
+   vector<SPECIES> PREYS;
+   PREYS.push_back({10.0, 0.0, 0.0, 0, 0});
+   vector<SPECIES> PREDS;
+   PREDS.push_back({3.0, 0.0, 0.0, 0, 0});
    // TODO population dynamics loop
    // TODO mutations
    // TODO extinctions
