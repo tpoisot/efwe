@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
    gsl_rng *rng = gsl_rng_alloc(gsl_rng_taus2);
    gsl_rng_set(rng, begin_time);
    // Default options
-   PARAMS P = {0.5, 0.3, 0.5, 1.21, 1.1, 0.15, 0.90, 0.05, 90, 90, 100000, 50, 10, 0.001, 0.0001};
+   PARAMS P = {0.5, 0.3, 0.5, 1.21, 1.1, 0.15, 0.90, 0.05, 90, 90, 100, 50, 10, 0.001, 0.001};
    // TODO get options
    // write options as JSON
    string jsfile = "ef1.json";
@@ -112,7 +112,8 @@ int main(int argc, char *argv[])
       << "\"q0\":  " << P.q0  << ","
       << "\"d0\":  " << P.d0  << ","
       << "\"mut\":  " << P.MUTSPR
-      << "}";
+      << "},"
+      << "\"steps\" : [";
    // Initialize list of species
    vector<SPECIES> PREYS;
    PREYS.push_back({5.0, 0.0, 0.0, 0, 0, false});
@@ -196,7 +197,7 @@ int main(int argc, char *argv[])
       {
          PREDS[pred_it].dN = 0.0;
       }
-      // TODO record
+      // record
       if(mainStep % P.REC_EACH == 0)
       {
          json << "{\"t\": " << mainStep + 1 << ",";
@@ -213,7 +214,7 @@ int main(int argc, char *argv[])
                json << ",";
             }
          }
-         json << "]";
+         json << "], ";
          json << "\"preds\": [";
          for(pred_it = 0 ; pred_it < PREDS.size() ; ++pred_it)
          {
@@ -229,8 +230,12 @@ int main(int argc, char *argv[])
          }
          json << "]";
          json << "}";
+         if(mainStep < (P.SIM_STEPS - P.REC_EACH))
+         {
+            json << ",";
+         }
       }
    }
-   json << "}";
+   json << "]}";
    json.close();
 }
