@@ -13,6 +13,8 @@ using namespace std;
 #include <gsl/gsl_sf_exp.h>
 #include <gsl/gsl_sf_log.h>
 
+#include <unistd.h>
+#include <getopt.h>
 
 // Type 2 functional response
 // a: attack rate
@@ -96,10 +98,58 @@ int main(int argc, char *argv[])
    gsl_rng *rng = gsl_rng_alloc(gsl_rng_taus2);
    gsl_rng_set(rng, begin_time);
    // Default options
+   string ID = "0";
    PARAMS P = {0.5, 0.3, 0.5, 1.21, 1.1, 0.15, 0.90, 0.05, 90, 90, 100, 50, 10, 0.001, 0.001};
-   // TODO get options
+   // Get options
+   int opt = 0;
+   static struct option long_options[] = {
+      {"id",  optional_argument, 0, 'i'},
+      {"bC",  optional_argument, 0, 'c'},
+      {"bP",  optional_argument, 0, 'p'},
+      {"bG",  optional_argument, 0, 'g'},
+      {"a0",  optional_argument, 0, 'a'},
+      {"r0",  optional_argument, 0, 'r'},
+      {"d0",  optional_argument, 0, 'd'},
+      {"q0",  optional_argument, 0, 'q'},
+      {"time",  optional_argument, 0, 't'},
+      {0, 0, 0, 0}
+   };
+   int long_index = 0;
+   while ((opt = getopt_long(argc, argv, "", long_options, &long_index)) != -1)
+   {
+      switch(opt)
+      {
+         case 'i':
+            ID = optarg;
+            break;
+         case 'c':
+            P.breadth_comp = atof(optarg);
+            break;
+         case 'p':
+            P.breadth_pred = atof(optarg);
+            break;
+         case 'g':
+            P.breadth_grow = atof(optarg);
+            break;
+         case 'a':
+            P.a0 = atof(optarg);
+            break;
+         case 'r':
+            P.r0 = atof(optarg);
+            break;
+         case 'd':
+            P.d0 = atof(optarg);
+            break;
+         case 'q':
+            P.q0 = atof(optarg);
+            break;
+         case 't':
+            P.SIM_STEPS = atoi(optarg);
+            break;
+      }
+   }
    // write options as JSON
-   string jsfile = "ef1.json";
+   string jsfile = "ef" + ID + ".json";
    ofstream json;
    json.open(jsfile);
    json << "{\"params\": {"
@@ -119,7 +169,7 @@ int main(int argc, char *argv[])
    PREYS.push_back({5.0, 0.0, 0.0, 0, 0, false});
    vector<SPECIES> PREDS;
    PREDS.push_back({3.0, 0.0, 0.0, 0, 0, false});
-   // TODO population dynamics loop
+   // Population dynamics loop
    unsigned mainStep = 0;
    for(mainStep = 0 ; mainStep < P.SIM_STEPS ; ++mainStep)
    {
