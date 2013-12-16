@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
    ofstream json;
    json.open(jsfile);
    json << "{\"params\": {"
-      << "\"id\":  1,"
+      << "\"id\": " << ID << ","
       << "\"breadth_comp\":  " << P.breadth_comp  << ","
       << "\"breadth_grow\":  " << P.breadth_grow  << ","
       << "\"breadth_pred\":  " << P.breadth_pred  << ","
